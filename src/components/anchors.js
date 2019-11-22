@@ -10,7 +10,7 @@ export default class Anchors extends React.PureComponent {
     )[0]
 
     this.state = {
-      selected: defaultCategory.name,
+      selected: defaultCategory.id,
     }
 
     this.handleClick = this.handleClick.bind(this)
@@ -30,12 +30,14 @@ export default class Anchors extends React.PureComponent {
     return (
       <nav className="emoji-mart-anchors" aria-label={i18n.categorieslabel}>
         {categories.map((category, i) => {
-          var { id, name, anchor } = category,
-            isSelected = name == selected
+          var { id, anchor } = category,
+            isSelected = id == selected
 
           if (anchor === false) {
             return null
           }
+
+          const icon = icons.categories[id] || icons.defaultIcon;
 
           return (
             <button
@@ -47,11 +49,11 @@ export default class Anchors extends React.PureComponent {
               onClick={this.handleClick}
               className={`emoji-mart-anchor ${
                 isSelected ? 'emoji-mart-anchor-selected' : ''
-              }`}
+                }`}
               style={{ color: isSelected ? color : null }}
             >
               <div className="emoji-mart-anchor-icon">
-                {icons.categories[id]()}
+                {icon()}
               </div>
               <span
                 className="emoji-mart-anchor-bar"

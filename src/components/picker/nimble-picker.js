@@ -22,6 +22,7 @@ const I18N = {
   notfound: 'No Emoji Found',
   skintext: 'Choose your default skin tone',
   categories: {
+    smileys: 'Smileys',
     search: 'Search Results',
     recent: 'Frequently Used',
     people: 'Smileys & People',
@@ -69,6 +70,8 @@ export default class NimblePicker extends React.PureComponent {
       skin: props.skin || store.get('skin') || props.defaultSkin,
       firstRender: true,
     }
+
+    this.categoryStructure = props.data.twoLevelStructure
 
     this.categories = []
     let allCategories = [].concat(this.data.categories)
@@ -140,6 +143,28 @@ export default class NimblePicker extends React.PureComponent {
         this.categories.push(category)
       }
     }
+
+    // console.log("cats", this.categories)
+
+    var newCategories = []
+    var currentSuperCat = undefined
+    for (const category of this.categories) {
+      if ((!category.parent && currentSuperCat) || (currentSuperCat && currentSuperCat.id !== category.parent)) {
+        newCategories.push(currentSuperCat)
+        currentSuperCat = null
+      }
+      if (category.parent) {
+        if (!currentSuperCat)
+          currentSuperCat = { ...this.categoryStructure[category.parent], id: category.parent, children: [] }
+        currentSuperCat.children.push(category)
+        currentSuperCat.gendered |= category.gendered
+      } else {
+        newCategories.push(category)
+      }
+    }
+
+    this.categories = newCategories
+    // console.log("aftercats", newCategories)
 
     let includeRecent =
       props.include && props.include.length
@@ -332,10 +357,10 @@ export default class NimblePicker extends React.PureComponent {
 
     if (activeCategory) {
       let { anchors } = this,
-        { name: categoryName } = activeCategory
+        { id: categoryId } = activeCategory
 
-      if (anchors.state.selected != categoryName) {
-        anchors.setState({ selected: categoryName })
+      if (anchors.state.selected != categoryId) {
+        anchors.setState({ selected: categoryId })
       }
     }
 
@@ -474,30 +499,30 @@ export default class NimblePicker extends React.PureComponent {
 
   render() {
     var {
-        perLine,
-        emojiSize,
-        set,
-        sheetSize,
-        sheetColumns,
-        sheetRows,
-        style,
-        title,
-        emoji,
-        color,
-        native,
-        backgroundImageFn,
-        emojisToShowFilter,
-        showPreview,
-        showSkinTones,
-        emojiTooltip,
-        include,
-        exclude,
-        recent,
-        autoFocus,
-        skinEmoji,
-        notFound,
-        notFoundEmoji,
-      } = this.props,
+      perLine,
+      emojiSize,
+      set,
+      sheetSize,
+      sheetColumns,
+      sheetRows,
+      style,
+      title,
+      emoji,
+      color,
+      native,
+      backgroundImageFn,
+      emojisToShowFilter,
+      showPreview,
+      showSkinTones,
+      emojiTooltip,
+      include,
+      exclude,
+      recent,
+      autoFocus,
+      skinEmoji,
+      notFound,
+      notFoundEmoji,
+    } = this.props,
       { skin } = this.state,
       width = perLine * (emojiSize + 12) + 12 + 2 + measureScrollbar()
 
@@ -515,6 +540,7 @@ export default class NimblePicker extends React.PureComponent {
             i18n={this.i18n}
             color={color}
             categories={this.categories}
+            categoryStructure={this.categoryStructure}
             onAnchorClick={this.handleAnchorClick}
             icons={this.icons}
           />
@@ -541,10 +567,11 @@ export default class NimblePicker extends React.PureComponent {
             return (
               <Category
                 ref={this.setCategoryRef.bind(this, `category-${i}`)}
-                key={category.name}
+                key={category.id}
                 id={category.id}
                 name={category.name}
                 emojis={category.emojis}
+                children={category.children}
                 perLine={perLine}
                 native={native}
                 hasStickyPosition={this.hasStickyPosition}

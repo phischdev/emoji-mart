@@ -13,6 +13,7 @@ import {
 
 import { Picker, Emoji, emojiIndex, NimbleEmojiIndex, getEmojiDataFromNative } from '../dist'
 import data from '../data/all.json'
+import customCats from '../data/customCats.json'
 import '../css/emoji-mart.css'
 
 const SETS = ['apple', 'google', 'twitter', 'emojione', 'messenger', 'facebook']

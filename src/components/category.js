@@ -24,13 +24,13 @@ export default class Category extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     var {
-        name,
-        perLine,
-        native,
-        hasStickyPosition,
-        emojis,
-        emojiProps,
-      } = this.props,
+      name,
+      perLine,
+      native,
+      hasStickyPosition,
+      emojis,
+      emojiProps,
+    } = this.props,
       { skin, size, set } = emojiProps,
       {
         perLine: nextPerLine,
@@ -151,14 +151,14 @@ export default class Category extends React.Component {
 
   render() {
     var {
-        id,
-        name,
-        hasStickyPosition,
-        emojiProps,
-        i18n,
-        notFound,
-        notFoundEmoji,
-      } = this.props,
+      id,
+      name,
+      hasStickyPosition,
+      emojiProps,
+      i18n,
+      notFound,
+      notFoundEmoji,
+    } = this.props,
       emojis = this.getEmojis(),
       labelStyles = {},
       labelSpanStyles = {},
@@ -184,7 +184,7 @@ export default class Category extends React.Component {
       <section
         ref={this.setContainerRef}
         className="emoji-mart-category"
-        aria-label={i18n.categories[id]}
+        aria-label={i18n.categories[id] || name}
         style={containerStyles}
       >
         <div
@@ -197,24 +197,33 @@ export default class Category extends React.Component {
             ref={this.setLabelRef}
             aria-hidden={true /* already labeled by the section aria-label */}
           >
-            {i18n.categories[id]}
+            {i18n.categories[id] || name}
           </span>
         </div>
+        {children && children.map(c => (
+          <div key={id + "_" + c.id}>
+            {c.name && c.name !== "" &&
+              (<span style={{ marginLeft: '6px', fontSize: 'small', color: 'gray' }}>
+                {i18n.categories[c.id] || c.name}
+              </span>)
+            }
+            <ul className="emoji-mart-category-list">
+              {c.emojis &&
+                c.emojis.map((emoji) => (
+                  <li
+                    key={
+                      (emoji.short_names && emoji.short_names.join('_')) || emoji
+                    }
+                  >
+                    {NimbleEmoji({ emoji: emoji, data: this.data, ...emojiProps })}
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))}
 
-        <ul className="emoji-mart-category-list">
-          {emojis &&
-            emojis.map((emoji) => (
-              <li
-                key={
-                  (emoji.short_names && emoji.short_names.join('_')) || emoji
-                }
-              >
-                {NimbleEmoji({ emoji: emoji, data: this.data, ...emojiProps })}
-              </li>
-            ))}
-        </ul>
 
-        {emojis && !emojis.length && (
+        {emojis && !emojis.length && !children && (
           <NotFound
             i18n={i18n}
             notFound={notFound}

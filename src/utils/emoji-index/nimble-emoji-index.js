@@ -157,6 +157,9 @@ export default class NimbleEmojiIndex {
               aIndex.pool = {}
 
               for (let id in aPool) {
+                if (aPool[id] === undefined) {
+                  console.error(`emoji with id "${id}" not found`);
+                }
                 let emoji = aPool[id],
                   { search } = emoji,
                   sub = value.substr(0, length),
