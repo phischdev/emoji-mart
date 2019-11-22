@@ -99,31 +99,33 @@ export default class Category extends React.Component {
     return true
   }
 
-  getEmojis() {
-    var { name, emojis, recent, perLine } = this.props
+  getRecentEmojis() {
+    var { emojis, recent, perLine } = this.props
 
-    if (name == 'Recent') {
-      let { custom } = this.props
-      let frequentlyUsed = recent || frequently.get(perLine)
+    let { custom } = this.props
+    let frequentlyUsed = recent || frequently.get(perLine)
 
-      if (frequentlyUsed.length) {
-        emojis = frequentlyUsed
-          .map((id) => {
-            const emoji = custom.filter((e) => e.id === id)[0]
-            if (emoji) {
-              return emoji
-            }
+    if (frequentlyUsed.length) {
+      emojis = frequentlyUsed
+        .map((id) => {
+          const emoji = custom.filter((e) => e.id === id)[0]
+          if (emoji) {
+            return emoji
+          }
 
-            return id
-          })
-          .filter((id) => !!getData(id, null, null, this.data))
-      }
-
-      if (emojis.length === 0 && frequentlyUsed.length > 0) {
-        return null
-      }
+          return id
+        })
+        .filter((id) => !!getData(id, null, null, this.data))
     }
 
+    if (emojis.length === 0 && frequentlyUsed.length > 0) {
+      return null
+    }
+
+    return emojis
+  }
+
+  getEmojis(emojis) {
     if (emojis) {
       emojis = emojis.slice(0)
     }
@@ -158,13 +160,21 @@ export default class Category extends React.Component {
       i18n,
       notFound,
       notFoundEmoji,
+      children,
+      emojis
     } = this.props,
-      emojis = this.getEmojis(),
       labelStyles = {},
       labelSpanStyles = {},
       containerStyles = {}
 
-    if (!emojis) {
+    if (name == 'Recent') emojis = this.getRecentEmojis()
+    if (!children && emojis) {
+      children = [{ emojis: emojis }]
+    }
+    if (children) {
+      children.forEach(c => c.emojis = this.getEmojis(c.emojis))
+    }
+    if (!children) {
       containerStyles = {
         display: 'none',
       }
